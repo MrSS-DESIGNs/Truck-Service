@@ -4,64 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Truck Service - Dashboard</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWixL1yR83T8jDq3W9YkL6r5z6Yb6I8y1g7z5z8z8z8z8z8z8z8z8z8z8z8z8z8z8z8z8z==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
+    /* Custom Glassmorphism */
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    }
+    /* Gradient Background */
     body {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+      background: linear-gradient(135deg, #1e3a8a 0%, #075985 100%);
       min-height: 100vh;
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
+      font-family: 'Inter', sans-serif;
+      color: #f3f4f6;
+      overflow-x: hidden;
     }
+    /* Sidebar Animation */
     .sidebar {
-      background: #212529;
-      border-radius: 15px;
-      padding: 1.5rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-      height: fit-content;
-    }
-    .sidebar .nav-link {
-      color: #adb5bd;
-      border-radius: 10px;
-      transition: background 0.3s ease;
-    }
-    .sidebar .nav-link:hover, .sidebar .nav-link.active {
-      background: #007bff;
-      color: #fff;
-    }
-    .card {
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-      background: #343a40;
       transition: transform 0.3s ease;
     }
-    .card:hover {
-      transform: translateY(-5px);
+    .sidebar-hidden {
+      transform: translateX(-100%);
     }
-    .table {
-      background: #f8f9fa;
-      border-radius: 10px;
-      overflow: hidden;
+    /* Table Sticky Header */
+    .table-container {
+      max-height: 500px;
+      overflow-y: auto;
     }
-    .table th {
-      background: linear-gradient(90deg, #007bff, #00d4ff);
-      color: #fff;
+    .table-container thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #1e40af;
     }
-    .form-control, .form-select {
-      border-radius: 10px;
-      background: #f8f9fa;
-      transition: box-shadow 0.3s ease;
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.5s ease;
     }
-    .form-control:focus, .form-select:focus {
-      box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-      border-color: #007bff;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .btn {
-      border-radius: 10px;
-      padding: 0.75rem;
-      font-weight: 600;
-      position: relative;
+    .scale-hover:hover {
+      transform: scale(1.05);
+      transition: transform 0.2s ease;
     }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #f97316;
+      border-radius: 4px;
+    }
+    /* Button Loading */
     .btn-loading::after {
       content: '';
       position: absolute;
@@ -79,408 +83,380 @@
       0% { transform: translate(-50%, -50%) rotate(0deg); }
       100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-    .alert {
-      border-radius: 10px;
-      animation: fadeIn 0.5s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .modal-content {
-      border-radius: 15px;
-      background: #343a40;
-      color: #fff;
-    }
-    .modal-header {
-      background: linear-gradient(90deg, #007bff, #00d4ff);
-      border-radius: 15px 15px 0 0;
-    }
-    .user-greeting {
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-    .low-stock {
-      background-color: #ffcccb !important;
-    }
-    .section {
-      display: none;
-    }
-    .section.active {
-      display: block;
-    }
   </style>
 </head>
 <body>
-  <div class="container-fluid py-4">
-    <div class="row">
-      <!-- Sidebar -->
-      <div class="col-lg-3 col-md-4 mb-4">
-        <div class="sidebar">
-          <h4 class="text-center mb-4">Truck Service</h4>
-          <nav class="nav flex-column">
-            <a class="nav-link active" href="#" onclick="showSection('trucks')">Truck Management</a>
-            <a class="nav-link" href="#" onclick="showSection('services')">Service Management</a>
-            <a class="nav-link" href="#" onclick="showSection('inventory')">Inventory Management</a>
-            <a class="nav-link" href="#" onclick="showSection('reports')">Reports & Logs</a>
-            <a class="nav-link text-danger" href="#" id="logout">Log Out</a>
-          </nav>
-        </div>
+  <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar md:w-64 w-full bg-gray-900/90 glass p-6 md:fixed md:h-screen md:top-0 md:left-0 z-20">
+      <div class="flex items-center justify-between mb-6">
+        <h4 class="text-2xl font-bold text-white"><i class="fa-solid fa-truck mr-2"></i> Truck Service</h4>
+        <button id="sidebar-toggle" class="md:hidden text-white focus:outline-none">
+          <i class="fa-solid fa-times text-xl"></i>
+        </button>
       </div>
+      <nav class="space-y-2">
+        <a href="#" onclick="showSection('trucks')" class="nav-link flex items-center p-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-colors">
+          <i class="fa-solid fa-truck-fast mr-2"></i> Truck Management
+        </a>
+        <a href="#" onclick="showSection('services')" class="nav-link flex items-center p-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-colors">
+          <i class="fa-solid fa-wrench mr-2"></i> Service Management
+        </a>
+        <a href="#" onclick="showSection('inventory')" class="nav-link flex items-center p-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-colors">
+          <i class="fa-solid fa-boxes-stacked mr-2"></i> Inventory Management
+        </a>
+        <a href="#" onclick="showSection('reports')" class="nav-link flex items-center p-3 rounded-lg text-gray-300 hover:bg-blue-600 hover:text-white transition-colors">
+          <i class="fa-solid fa-chart-line mr-2"></i> Reports & Logs
+        </a>
+        <a href="#" id="logout" class="flex items-center p-3 rounded-lg text-orange-400 hover:bg-orange-600 hover:text-white transition-colors">
+          <i class="fa-solid fa-sign-out-alt mr-2"></i> Log Out
+        </a>
+      </nav>
+    </aside>
 
-      <!-- Main Content -->
-      <div class="col-lg-9 col-md-8">
-        <h1 class="mb-3">Dashboard</h1>
-        <p class="user-greeting mb-4" id="userGreeting">Welcome, Loading...</p>
+    <!-- Mobile Sidebar Toggle Button -->
+    <button id="sidebar-open" class="md:hidden fixed top-4 left-4 z-30 text-white bg-blue-600 p-2 rounded-full">
+      <i class="fa-solid fa-bars text-xl"></i>
+    </button>
 
-        <!-- Truck Management Section -->
-        <div id="trucks" class="section active">
-          <div class="card mb-4">
-            <div class="card-body">
-              <h2 class="card-title">Your Trucks</h2>
-              <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addTruckModal">
-                Add New Truck
-              </button>
-              <div id="truckTable" class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Truck ID</th>
-                      <th>Model</th>
-                      <th>Year</th>
-                      <th>License Plate</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="truckTableBody">
-                    <tr><td colspan="5" class="text-center">Loading trucks...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <div id="truckError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-            </div>
+    <!-- Main Content -->
+    <main class="flex-1 p-6 md:ml-64">
+      <h1 class="text-4xl font-extrabold mb-4 fade-in">Dashboard</h1>
+      <p class="user-greeting text-lg mb-6 fade-in" id="userGreeting">Welcome, Loading...</p>
+
+      <!-- Truck Management Section -->
+      <section id="trucks" class="section active fade-in">
+        <div class="glass rounded-2xl p-6 mb-6 scale-hover">
+          <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-truck-fast mr-2"></i> Your Trucks</h2>
+          <button class="btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mb-4" data-bs-toggle="modal" data-bs-target="#addTruckModal">
+            <i class="fa-solid fa-plus mr-2"></i> Add New Truck
+          </button>
+          <div class="table-container">
+            <table class="w-full text-left bg-white/90 rounded-lg overflow-hidden">
+              <thead class="text-white">
+                <tr>
+                  <th class="p-4">Truck ID</th>
+                  <th class="p-4">Model</th>
+                  <th class="p-4">Year</th>
+                  <th class="p-4">License Plate</th>
+                  <th class="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="truckTableBody" class="text-gray-800">
+                <tr><td colspan="5" class="text-center p-4">Loading trucks...</td></tr>
+              </tbody>
+            </table>
           </div>
+          <div id="truckError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
         </div>
+      </section>
 
-        <!-- Service Management Section -->
-        <div id="services" class="section">
-          <div class="card mb-4">
-            <div class="card-body">
-              <h2 class="card-title">Service Management</h2>
-              <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-                Add New Service
-              </button>
-              <div id="serviceTable" class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Truck ID</th>
-                      <th>Work Type</th>
-                      <th>Mechanic</th>
-                      <th>Cost</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody id="serviceTableBody">
-                    <tr><td colspan="5" class="text-center">Loading services...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <div id="serviceError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-            </div>
+      <!-- Service Management Section -->
+      <section id="services" class="section hidden fade-in">
+        <div class="glass rounded-2xl p-6 mb-6 scale-hover">
+          <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-wrench mr-2"></i> Service Management</h2>
+          <button class="btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mb-4" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+            <i class="fa-solid fa-plus mr-2"></i> Add New Service
+          </button>
+          <div class="table-container">
+            <table class="w-full text-left bg-white/90 rounded-lg overflow-hidden">
+              <thead class="text-white">
+                <tr>
+                  <th class="p-4">Truck ID</th>
+                  <th class="p-4">Work Type</th>
+                  <th class="p-4">Mechanic</th>
+                  <th class="p-4">Cost</th>
+                  <th class="p-4">Date</th>
+                </tr>
+              </thead>
+              <tbody id="serviceTableBody" class="text-gray-800">
+                <tr><td colspan="5" class="text-center p-4">Loading services...</td></tr>
+              </tbody>
+            </table>
           </div>
+          <div id="serviceError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
         </div>
+      </section>
 
-        <!-- Inventory Management Section -->
-        <div id="inventory" class="section">
-          <div class="card mb-4">
-            <div class="card-body">
-              <h2 class="card-title">Inventory Management</h2>
-              <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addPartModal">
-                Add New Part
-              </button>
-              <div id="partTable" class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Part ID</th>
-                      <th>Name</th>
-                      <th>Quantity</th>
-                      <th>Price</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="partTableBody">
-                    <tr><td colspan="5" class="text-center">Loading parts...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <div id="partError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-            </div>
+      <!-- Inventory Management Section -->
+      <section id="inventory" class="section hidden fade-in">
+        <div class="glass rounded-2xl p-6 mb-6 scale-hover">
+          <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-boxes-stacked mr-2"></i> Inventory Management</h2>
+          <button class="btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mb-4" data-bs-toggle="modal" data-bs-target="#addPartModal">
+            <i class="fa-solid fa-plus mr-2"></i> Add New Part
+          </button>
+          <div class="table-container">
+            <table class="w-full text-left bg-white/90 rounded-lg overflow-hidden">
+              <thead class="text-white">
+                <tr>
+                  <th class="p-4">Part ID</th>
+                  <th class="p-4">Name</th>
+                  <th class="p-4">Quantity</th>
+                  <th class="p-4">Price</th>
+                  <th class="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="partTableBody" class="text-gray-800">
+                <tr><td colspan="5" class="text-center p-4">Loading parts...</td></tr>
+              </tbody>
+            </table>
           </div>
+          <div id="partError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
         </div>
+      </section>
 
-        <!-- Reports & Logs Section -->
-        <div id="reports" class="section">
-          <div class="card mb-4">
-            <div class="card-body">
-              <h2 class="card-title">Reports & Logs</h2>
-              <div class="mb-3">
-                <label for="reportFilter" class="form-label">Filter By</label>
-                <select id="reportFilter" class="form-select">
-                  <option value="daily">Daily Services</option>
-                  <option value="monthly">Monthly Services</option>
-                  <option value="inventory">Inventory Usage</option>
-                  <option value="costs">Cost Tracking</option>
-                </select>
-              </div>
-              <div id="reportTable" class="table-responsive">
-                <table class="table table-striped">
-                  <thead id="reportTableHead"></thead>
-                  <tbody id="reportTableBody">
-                    <tr><td colspan="5" class="text-center">Select a report to view...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <div id="reportError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-            </div>
+      <!-- Reports & Logs Section -->
+      <section id="reports" class="section hidden fade-in">
+        <div class="glass rounded-2xl p-6 mb-6 scale-hover">
+          <h2 class="text-2xl font-semibold mb-4"><i class="fa-solid fa-chart-line mr-2"></i> Reports & Logs</h2>
+          <div class="mb-4">
+            <label for="reportFilter" class="block text-sm font-medium mb-2">Filter By</label>
+            <select id="reportFilter" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500">
+              <option value="daily">Daily Services</option>
+              <option value="monthly">Monthly Services</option>
+              <option value="inventory">Inventory Usage</option>
+              <option value="costs">Cost Tracking</option>
+            </select>
           </div>
+          <div class="table-container">
+            <table class="w-full text-left bg-white/90 rounded-lg overflow-hidden">
+              <thead id="reportTableHead" class="text-white"></thead>
+              <tbody id="reportTableBody" class="text-gray-800">
+                <tr><td colspan="5" class="text-center p-4">Select a report to view...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="reportError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   </div>
 
   <!-- Add Truck Modal -->
-  <div class="modal fade" id="addTruckModal" tabindex="-1" aria-labelledby="addTruckModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addTruckModalLabel">Add New Truck</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="addTruckModal" tabindex="-1" aria-labelledby="addTruckModalLabel" aria-hidden="true">
+    <div class="modal-dialog max-w-md mx-auto mt-20">
+      <div class="glass rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="text-xl font-semibold" id="addTruckModalLabel"><i class="fa-solid fa-truck-fast mr-2"></i> Add New Truck</h5>
+          <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fa-solid fa-times"></i>
+          </button>
         </div>
-        <div class="modal-body">
-          <form id="addTruckForm" novalidate>
-            <div class="mb-3">
-              <label for="truckId" class="form-label">Truck ID</label>
-              <input type="text" id="truckId" class="form-control" placeholder="e.g., TRK001" required />
-              <div class="invalid-feedback">Please enter a unique Truck ID.</div>
-            </div>
-            <div class="mb-3">
-              <label for="model" class="form-label">Model</label>
-              <input type="text" id="model" class="form-control" placeholder="e.g., Volvo FH16" vrais="true" />
-              <div class="invalid-feedback">Please enter the truck model.</div>
-            </div>
-            <div class="mb-3">
-              <label for="year" class="form-label">Year</label>
-              <input type="number" id="year" class="form-control" placeholder="e.g., 2020" min="1900" max="2100" required />
-              <div class="invalid-feedback">Please enter a valid year.</div>
-            </div>
-            <div class="mb-3">
-              <label for="licensePlate" class="form-label">License Plate</label>
-              <input type="text" id="licensePlate" class="form-control" placeholder="e.g., ABC123" required />
-              <div class="invalid-feedback">Please enter the license plate.</div>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Add Truck</button>
-          </form>
-          <div id="addTruckError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-        </div>
+        <form id="addTruckForm" novalidate class="space-y-4">
+          <div>
+            <label for="truckId" class="block text-sm font-medium">Truck ID</label>
+            <input type="text" id="truckId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., TRK001" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Truck ID.</div>
+          </div>
+          <div>
+            <label for="model" class="block text-sm font-medium">Model</label>
+            <input type="text" id="model" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Volvo FH16" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the truck model.</div>
+          </div>
+          <div>
+            <label for="year" class="block text-sm font-medium">Year</label>
+            <input type="number" id="year" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 2020" min="1900" max="2100" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid year.</div>
+          </div>
+          <div>
+            <label for="licensePlate" class="block text-sm font-medium">License Plate</label>
+            <input type="text" id="licensePlate" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., ABC123" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the license plate.</div>
+          </div>
+          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Truck</button>
+        </form>
+        <div id="addTruckError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
   </div>
 
   <!-- Edit Truck Modal -->
-  <div class="modal fade" id="editTruckModal" tabindex="-1" aria-labelledby="editTruckModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editTruckModalLabel">Edit Truck</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="editTruckModal" tabindex="-1" aria-labelledby="editTruckModalLabel" aria-hidden="true">
+    <div class="modal-dialog max-w-md mx-auto mt-20">
+      <div class="glass rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="text-xl font-semibold" id="editTruckModalLabel"><i class="fa-solid fa-truck-fast mr-2"></i> Edit Truck</h5>
+          <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fa-solid fa-times"></i>
+          </button>
         </div>
-        <div class="modal-body">
-          <form id="editTruckForm" novalidate>
-            <input type="hidden" id="editTruckDocId" />
-            <div class="mb-3">
-              <label for="editTruckId" class="form-label">Truck ID</label>
-              <input type="text" id="editTruckId" class="form-control" required />
-              <div class="invalid-feedback">Please enter a unique Truck ID.</div>
-            </div>
-            <div class="mb-3">
-              <label for="editModel" class="form-label">Model</label>
-              <input type="text" id="editModel" class="form-control" required />
-              <div class="invalid-feedback">Please enter the truck model.</div>
-            </div>
-            <div class="mb-3">
-              <label for="editYear" class="form-label">Year</label>
-              <input type="number" id="editYear" class="form-control" min="1900" max="2100" required />
-              <div class="invalid-feedback">Please enter a valid year.</div>
-            </div>
-            <div class="mb-3">
-              <label for="editLicensePlate" class="form-label">License Plate</label>
-              <input type="text" id="editLicensePlate" class="form-control" required />
-              <div class="invalid-feedback">Please enter the license plate.</div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-          </form>
-          <div id="editTruckError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-        </div>
+        <form id="editTruckForm" novalidate class="space-y-4">
+          <input type="hidden" id="editTruckDocId" />
+          <div>
+            <label for="editTruckId" class="block text-sm font-medium">Truck ID</label>
+            <input type="text" id="editTruckId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Truck ID.</div>
+          </div>
+          <div>
+            <label for="editModel" class="block text-sm font-medium">Model</label>
+            <input type="text" id="editModel" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the truck model.</div>
+          </div>
+          <div>
+            <label for="editYear" class="block text-sm font-medium">Year</label>
+            <input type="number" id="editYear" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" min="1900" max="2100" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid year.</div>
+          </div>
+          <div>
+            <label for="editLicensePlate" class="block text-sm font-medium">License Plate</label>
+            <input type="text" id="editLicensePlate" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the license plate.</div>
+          </div>
+          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Save Changes</button>
+        </form>
+        <div id="editTruckError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
   </div>
 
   <!-- Add Service Modal -->
-  <div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addServiceModalLabel">Add New Service</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog max-w-md mx-auto mt-20">
+      <div class="glass rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="text-xl font-semibold" id="addServiceModalLabel"><i class="fa-solid fa-wrench mr-2"></i> Add New Service</h5>
+          <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fa-solid fa-times"></i>
+          </button>
         </div>
-        <div class="modal-body">
-          <form id="addServiceForm" novalidate>
-            <div class="mb-3">
-              <label for="serviceTruckId" class="form-label">Truck</label>
-              <select id="serviceTruckId" class="form-select" required>
-                <option value="">Select a truck</option>
-              </select>
-              <div class="invalid-feedback">Please select a truck.</div>
-            </div>
-            <div class="mb-3">
-              <label for="workType" class="form-label">Work Type</label>
-              <select id="workType" class="form-select" required>
-                <option value="">Select work type</option>
-                <option value="Engine Repair">Engine Repair</option>
-                <option value="Tire Change">Tire Change</option>
-                <option value="Oil Change">Oil Change</option>
-                <option value="Brake Repair">Brake Repair</option>
-              </select>
-              <div class="invalid-feedback">Please select a work type.</div>
-            </div>
-            <div class="mb-3">
-              <label for="mechanic" class="form-label">Mechanic</label>
-              <input type="text" id="mechanic" class="form-control" placeholder="e.g., John Doe" required />
-              <div class="invalid-feedback">Please enter the mechanic's name.</div>
-            </div>
-            <div class="mb-3">
-              <label for="serviceCost" class="form-label">Cost ($)</label>
-              <input type="number" id="serviceCost" class="form-control" placeholder="e.g., 500" min="0" step="0.01" required />
-              <div class="invalid-feedback">Please enter a valid cost (e.g., 0 or greater).</div>
-            </div>
-            <div class="mb-3">
-              <label for="serviceParts" class="form-label">Parts Used (Optional)</label>
-              <select id="serviceParts" class="form-select" multiple>
-                <option value="">Select parts</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Add Service</button>
-          </form>
-          <div id="addServiceError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-        </div>
+        <form id="addServiceForm" novalidate class="space-y-4">
+          <div>
+            <label for="serviceTruckId" class="block text-sm font-medium">Truck</label>
+            <select id="serviceTruckId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required>
+              <option value="">Loading trucks...</option>
+            </select>
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please select a truck.</div>
+          </div>
+          <div>
+            <label for="workType" class="block text-sm font-medium">Work Type</label>
+            <input type="text" id="workType" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Engine Overhaul" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a work type.</div>
+          </div>
+          <div>
+            <label for="mechanic" class="block text-sm font-medium">Mechanic</label>
+            <input type="text" id="mechanic" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., John Doe" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the mechanic's name.</div>
+          </div>
+          <div>
+            <label for="serviceCost" class="block text-sm font-medium">Cost ($)</label>
+            <input type="number" id="serviceCost" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 500" min="0" step="0.01" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid cost (0 or greater).</div>
+          </div>
+          <div>
+            <label for="serviceParts" class="block text-sm font-medium">Part Used (Optional)</label>
+            <select id="serviceParts" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500">
+              <option value="">No part used</option>
+            </select>
+          </div>
+          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Service</button>
+        </form>
+        <div id="addServiceError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
   </div>
 
   <!-- Service History Modal -->
-  <div class="modal fade" id="serviceHistoryModal" tabindex="-1" aria-labelledby="serviceHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="serviceHistoryModalLabel">Service History</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="serviceHistoryModal" tabindex="-1" aria-labelledby="serviceHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog max-w-4xl mx-auto mt-20">
+      <div class="glass rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="text-xl font-semibold" id="serviceHistoryModalLabel"><i class="fa-solid fa-history mr-2"></i> Service History</h5>
+          <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fa-solid fa-times"></i>
+          </button>
         </div>
-        <div class="modal-body">
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Work Type</th>
-                  <th>Mechanic</th>
-                  <th>Cost</th>
-                  <th>Date</th>
-                  <th>Parts Used</th>
-                </tr>
-              </thead>
-              <tbody id="serviceHistoryTableBody"></tbody>
-            </table>
-          </div>
-          <div id="serviceHistoryError" class="alert alert-danger mt-3 d-none" role="alert"></div>
+        <div class="table-container">
+          <table class="w-full text-left bg-white/90 rounded-lg overflow-hidden">
+            <thead class="text-white">
+              <tr>
+                <th class="p-4">Work Type</th>
+                <th class="p-4">Mechanic</th>
+                <th class="p-4">Cost</th>
+                <th class="p-4">Date</th>
+                <th class="p-4">Parts Used</th>
+              </tr>
+            </thead>
+            <tbody id="serviceHistoryTableBody" class="text-gray-800"></tbody>
+          </table>
         </div>
+        <div id="serviceHistoryError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
   </div>
 
   <!-- Add Part Modal -->
-  <div class="modal fade" id="addPartModal" tabindex="-1" aria-labelledby="addPartModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addPartModalLabel">Add New Part</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="addPartModal" tabindex="-1" aria-labelledby="addPartModalLabel" aria-hidden="true">
+    <div class="modal-dialog max-w-md mx-auto mt-20">
+      <div class="glass rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="text-xl font-semibold" id="addPartModalLabel"><i class="fa-solid fa-boxes-stacked mr-2"></i> Add New Part</h5>
+          <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fa-solid fa-times"></i>
+          </button>
         </div>
-        <div class="modal-body">
-          <form id="addPartForm" novalidate>
-            <div class="mb-3">
-              <label for="partId" class="form-label">Part ID</label>
-              <input type="text" id="partId" class="form-control" placeholder="e.g., PART001" required />
-              <div class="invalid-feedback">Please enter a unique Part ID.</div>
-            </div>
-            <div class="mb-3">
-              <label for="partName" class="form-label">Name</label>
-              <input type="text" id="partName" class="form-control" placeholder="e.g., Oil Filter" required />
-              <div class="invalid-feedback">Please enter the part name.</div>
-            </div>
-            <div class="mb-3">
-              <label for="partQuantity" class="form-label">Quantity</label>
-              <input type="number" id="partQuantity" class="form-control" placeholder="e.g., 10" min="0" required />
-              <div class="invalid-feedback">Please enter a valid quantity.</div>
-            </div>
-            <div class="mb-3">
-              <label for="partPrice" class="form-label">Price ($)</label>
-              <input type="number" id="partPrice" class="form-control" placeholder="e.g., 25.99" min="0" step="0.01" required />
-              <div class="invalid-feedback">Please enter a valid price.</div>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Add Part</button>
-          </form>
-          <div id="addPartError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-        </div>
+        <form id="addPartForm" novalidate class="space-y-4">
+          <div>
+            <label for="partId" class="block text-sm font-medium">Part ID</label>
+            <input type="text" id="partId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., PART001" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Part ID.</div>
+          </div>
+          <div>
+            <label for="partName" class="block text-sm font-medium">Name</label>
+            <input type="text" id="partName" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Oil Filter" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the part name.</div>
+          </div>
+          <div>
+            <label for="partQuantity" class="block text-sm font-medium">Quantity</label>
+            <input type="number" id="partQuantity" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 10" min="0" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid quantity.</div>
+          </div>
+          <div>
+            <label for="partPrice" class="block text-sm font-medium">Price ($)</label>
+            <input type="number" id="partPrice" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 25.99" min="0" step="0.01" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid price.</div>
+          </div>
+          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Part</button>
+        </form>
+        <div id="addPartError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
   </div>
 
   <!-- Edit Part Modal -->
-  <div class="modal fade" id="editPartModal" tabindex="-1" aria-labelledby="editPartModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editPartModalLabel">Edit Part</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="editPartModal" tabindex="-1" aria-labelledby="editPartModalLabel" aria-hidden="true">
+    <div class="modal-dialog max-w-md mx-auto mt-20">
+      <div class="glass rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h5 class="text-xl font-semibold" id="editPartModalLabel"><i class="fa-solid fa-boxes-stacked mr-2"></i> Edit Part</h5>
+          <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fa-solid fa-times"></i>
+          </button>
         </div>
-        <div class="modal-body">
-          <form id="editPartForm" novalidate>
-            <input type="hidden" id="editPartDocId" />
-            <div class="mb-3">
-              <label for="editPartId" class="form-label">Part ID</label>
-              <input type="text" id="editPartId" class="form-control" required />
-              <div class="invalid-feedback">Please enter a unique Part ID.</div>
-            </div>
-            <div class="mb-3">
-              <label for="editPartName" class="form-label">Name</label>
-              <input type="text" id="editPartName" class="form-control" required />
-              <div class="invalid-feedback">Please enter the part name.</div>
-            </div>
-            <div class="mb-3">
-              <label for="editPartQuantity" class="form-label">Quantity</label>
-              <input type="number" id="editPartQuantity" class="form-control" min="0" required />
-              <div class="invalid-feedback">Please enter a valid quantity.</div>
-            </div>
-            <div class="mb-3">
-              <label for="editPartPrice" class="form-label">Price ($)</label>
-              <input type="number" id="editPartPrice" class="form-control" min="0" step="0.01" required />
-              <div class="invalid-feedback">Please enter a valid price.</div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-          </form>
-          <div id="editPartError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-        </div>
+        <form id="editPartForm" novalidate class="space-y-4">
+          <input type="hidden" id="editPartDocId" />
+          <div>
+            <label for="editPartId" class="block text-sm font-medium">Part ID</label>
+            <input type="text" id="editPartId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Part ID.</div>
+          </div>
+          <div>
+            <label for="editPartName" class="block text-sm font-medium">Name</label>
+            <input type="text" id="editPartName" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the part name.</div>
+          </div>
+          <div>
+            <label for="editPartQuantity" class="block text-sm font-medium">Quantity</label>
+            <input type="number" id="editPartQuantity" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" min="0" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid quantity.</div>
+          </div>
+          <div>
+            <label for="editPartPrice" class="block text-sm font-medium">Price ($)</label>
+            <input type="number" id="editPartPrice" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" min="0" step="0.01" required />
+            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid price.</div>
+          </div>
+          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Save Changes</button>
+        </form>
+        <div id="editPartError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
   </div>
@@ -516,31 +492,71 @@
     const showAlert = (elementId, message, isSuccess = false) => {
       const alert = document.getElementById(elementId);
       alert.textContent = message;
-      alert.classList.remove('d-none', 'alert-success', 'alert-danger');
-      alert.classList.add(isSuccess ? 'alert-success' : 'alert-danger');
-      setTimeout(() => alert.classList.add('d-none'), 5000);
+      alert.classList.remove('hidden');
+      alert.classList.toggle('bg-green-500/80', isSuccess);
+      alert.classList.toggle('bg-red-500/80', !isSuccess);
+      setTimeout(() => alert.classList.add('hidden'), 5000);
     };
 
     const validateForm = (form) => {
-      form.classList.add('was-validated');
-      return form.checkValidity();
+      let valid = true;
+      form.querySelectorAll('input[required], select[required]').forEach(input => {
+        if (!input.value.trim()) {
+          input.nextElementSibling.classList.remove('hidden');
+          valid = false;
+        } else {
+          input.nextElementSibling.classList.add('hidden');
+        }
+      });
+      return valid;
     };
 
     // Section Navigation
     window.showSection = (sectionId) => {
       document.querySelectorAll('.section').forEach(section => {
-        section.classList.remove('active');
+        section.classList.add('hidden');
+        section.classList.remove('fade-in');
       });
-      document.getElementById(sectionId).classList.add('active');
+      const activeSection = document.getElementById(sectionId);
+      activeSection.classList.remove('hidden');
+      activeSection.classList.add('fade-in');
       document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
+        link.classList.remove('bg-blue-600', 'text-white');
+        link.classList.add('text-gray-300');
       });
-      document.querySelector(`a[onclick="showSection('${sectionId}')"]`).classList.add('active');
+      const activeLink = document.querySelector(`a[onclick="showSection('${sectionId}')"]`);
+      activeLink.classList.remove('text-gray-300');
+      activeLink.classList.add('bg-blue-600', 'text-white');
       if (sectionId === 'trucks') loadTrucks();
       else if (sectionId === 'services') loadServices();
       else if (sectionId === 'inventory') loadParts();
       else if (sectionId === 'reports') loadReport();
     };
+
+    // Modal Handling
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      modal.querySelector('[data-bs-dismiss="modal"]').addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+    });
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.querySelector(btn.dataset.bsTarget);
+        target.classList.remove('hidden');
+      });
+    });
+
+    // Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOpen = document.getElementById('sidebar-open');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    sidebarOpen.addEventListener('click', () => {
+      sidebar.classList.remove('sidebar-hidden');
+    });
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.add('sidebar-hidden');
+    });
 
     // Auth Check and User Greeting
     let currentUser = null;
@@ -579,23 +595,24 @@
       if (!currentUser) return;
       try {
         const truckTableBody = document.getElementById('truckTableBody');
-        truckTableBody.innerHTML = '';
+        truckTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">Loading trucks...</td></tr>';
         const q = query(collection(db, `users/${currentUser.uid}/trucks`), orderBy('truckId'));
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) {
-          truckTableBody.innerHTML = '<tr><td colspan="5" class="text-center">No trucks found. Add a truck to get started!</td></tr>';
+          truckTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No trucks found. Add a truck to get started!</td></tr>';
         } else {
+          truckTableBody.innerHTML = '';
           querySnapshot.forEach((doc) => {
             const truck = doc.data();
             const row = `
-              <tr>
-                <td>${truck.truckId}</td>
-                <td>${truck.model}</td>
-                <td>${truck.year}</td>
-                <td>${truck.licensePlate}</td>
-                <td>
-                  <button class="btn btn-sm btn-primary me-2" onclick="openEditTruckModal('${doc.id}', '${truck.truckId}', '${truck.model}', '${truck.year}', '${truck.licensePlate}')">Edit</button>
-                  <button class="btn btn-sm btn-info" onclick="viewServiceHistory('${doc.id}')">History</button>
+              <tr class="hover:bg-gray-100 transition-colors">
+                <td class="p-4">${truck.truckId}</td>
+                <td class="p-4">${truck.model}</td>
+                <td class="p-4">${truck.year}</td>
+                <td class="p-4">${truck.licensePlate}</td>
+                <td class="p-4">
+                  <button class="btn bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 mr-2" onclick="openEditTruckModal('${doc.id}', '${truck.truckId}', '${truck.model}', '${truck.year}', '${truck.licensePlate}')"><i class="fa-solid fa-edit"></i> Edit</button>
+                  <button class="btn bg-teal-500 text-white px-3 py-1 rounded-lg hover:bg-teal-600" onclick="viewServiceHistory('${doc.id}')"><i class="fa-solid fa-history"></i> History</button>
                 </td>
               </tr>
             `;
@@ -603,6 +620,7 @@
           });
         }
       } catch (error) {
+        console.error('Error loading trucks:', error);
         showAlert('truckError', 'Failed to load trucks: ' + error.message);
       }
     };
@@ -632,11 +650,11 @@
           createdBy: currentUser.uid
         });
         form.reset();
-        form.classList.remove('was-validated');
-        bootstrap.Modal.getInstance(document.getElementById('addTruckModal')).hide();
+        document.querySelector('#addTruckModal').classList.add('hidden');
         showAlert('truckError', 'Truck added successfully!', true);
         loadTrucks();
       } catch (error) {
+        console.error('Error adding truck:', error);
         showAlert('addTruckError', 'Failed to add truck: ' + error.message);
       } finally {
         toggleButtonLoading(button, false);
@@ -649,7 +667,7 @@
       document.getElementById('editModel').value = model;
       document.getElementById('editYear').value = year;
       document.getElementById('editLicensePlate').value = licensePlate;
-      new bootstrap.Modal(document.getElementById('editTruckModal')).show();
+      document.getElementById('editTruckModal').classList.remove('hidden');
     };
 
     document.getElementById('editTruckForm').addEventListener('submit', async (e) => {
@@ -678,11 +696,11 @@
           createdBy: currentUser.uid
         });
         form.reset();
-        form.classList.remove('was-validated');
-        bootstrap.Modal.getInstance(document.getElementById('editTruckModal')).hide();
+        document.querySelector('#editTruckModal').classList.add('hidden');
         showAlert('truckError', 'Truck updated successfully!', true);
         loadTrucks();
       } catch (error) {
+        console.error('Error updating truck:', error);
         showAlert('editTruckError', 'Failed to update truck: ' + error.message);
       } finally {
         toggleButtonLoading(button, false);
@@ -691,29 +709,38 @@
 
     // --- Service Management ---
     const loadTrucksForService = async () => {
+      const truckSelect = document.getElementById('serviceTruckId');
+      truckSelect.innerHTML = '<option value="">Loading trucks...</option>';
       try {
-        const truckSelect = document.getElementById('serviceTruckId');
-        truckSelect.innerHTML = '<option value="">Select a truck</option>';
+        if (!currentUser) {
+          throw new Error('User not authenticated');
+        }
         const q = query(collection(db, `users/${currentUser.uid}/trucks`), orderBy('truckId'));
         const querySnapshot = await getDocs(q);
+        console.log('Trucks querySnapshot:', querySnapshot.size, 'documents found');
+        truckSelect.innerHTML = '<option value="">Select a truck</option>';
         if (querySnapshot.empty) {
-          truckSelect.innerHTML += '<option value="" disabled>No trucks available</option>';
+          truckSelect.innerHTML = '<option value="" disabled>No trucks available</option>';
+          showAlert('addServiceError', 'No trucks found. Please add a truck in Truck Management.', false);
         } else {
           querySnapshot.forEach((doc) => {
             const truck = doc.data();
+            console.log('Truck loaded:', truck.truckId, doc.id);
             const option = `<option value="${doc.id}">${truck.truckId} - ${truck.model}</option>`;
             truckSelect.insertAdjacentHTML('beforeend', option);
           });
         }
       } catch (error) {
-        showAlert('addServiceError', 'Failed to load trucks: ' + error.message);
+        console.error('Error loading trucks for service:', error);
+        truckSelect.innerHTML = '<option value="" disabled>Failed to load trucks</option>';
+        showAlert('addServiceError', `Failed to load trucks: ${error.message}. Please try again or check your connection.`, false);
       }
     };
 
     const loadPartsForService = async () => {
       try {
         const partsSelect = document.getElementById('serviceParts');
-        partsSelect.innerHTML = '<option value="">Select parts</option>';
+        partsSelect.innerHTML = '<option value="">No part used</option>';
         const q = query(collection(db, `users/${currentUser.uid}/parts`), orderBy('partId'));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
@@ -724,6 +751,7 @@
           }
         });
       } catch (error) {
+        console.error('Error loading parts for service:', error);
         showAlert('addServiceError', 'Failed to load parts: ' + error.message);
       }
     };
@@ -732,13 +760,12 @@
       if (!currentUser) return;
       try {
         const serviceTableBody = document.getElementById('serviceTableBody');
-        serviceTableBody.innerHTML = '';
+        serviceTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">Loading services...</td></tr>';
         const q = query(collection(db, `users/${currentUser.uid}/services`), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) {
-          serviceTableBody.innerHTML = '<tr><td colspan="5" class="text-center">No services found. Add a service to get started!</td></tr>';
+          serviceTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No services found. Add a service to get started!</td></tr>';
         } else {
-          // Pre-fetch all trucks to avoid repeated doc() calls
           const trucksMap = {};
           const trucksQ = query(collection(db, `users/${currentUser.uid}/trucks`));
           const trucksSnapshot = await getDocs(trucksQ);
@@ -746,25 +773,26 @@
             trucksMap[truckDoc.id] = truckDoc.data().truckId;
           });
 
+          serviceTableBody.innerHTML = '';
           for (const serviceDoc of querySnapshot.docs) {
             const service = serviceDoc.data();
             const truckId = trucksMap[service.truckId] || 'Unknown';
             const createdAt = service.createdAt instanceof Timestamp ? service.createdAt.toDate() : new Date();
             const row = `
-              <tr>
-                <td>${truckId}</td>
-                <td>${service.workType}</td>
-                <td>${service.mechanic}</td>
-                <td>$${service.cost.toFixed(2)}</td>
-                <td>${createdAt.toLocaleDateString()}</td>
+              <tr class="hover:bg-gray-100 transition-colors">
+                <td class="p-4">${truckId}</td>
+                <td class="p-4">${service.workType}</td>
+                <td class="p-4">${service.mechanic}</td>
+                <td class="p-4">$${service.cost.toFixed(2)}</td>
+                <td class="p-4">${createdAt.toLocaleDateString()}</td>
               </tr>
             `;
             serviceTableBody.insertAdjacentHTML('beforeend', row);
           }
         }
       } catch (error) {
-        console.error('Error in loadServices:', error);
-        showAlert('serviceError', 'Failed to load services. Please try again later.');
+        console.error('Error loading services:', error);
+        showAlert('serviceError', 'Failed to load services: ' + error.message);
       }
     };
 
@@ -779,21 +807,18 @@
       toggleButtonLoading(button, true);
 
       const truckId = document.getElementById('serviceTruckId').value;
-      const workType = document.getElementById('workType').value;
+      const workType = document.getElementById('workType').value.trim();
       const mechanic = document.getElementById('mechanic').value.trim();
       const costInput = document.getElementById('serviceCost').value;
-      const partsUsed = Array.from(document.getElementById('serviceParts').selectedOptions)
-        .map(opt => opt.value)
-        .filter(id => id);
+      const partId = document.getElementById('serviceParts').value;
 
-      // Custom validations
       if (!truckId) {
         showAlert('addServiceError', 'Please select a truck.');
         toggleButtonLoading(button, false);
         return;
       }
       if (!workType) {
-        showAlert('addServiceError', 'Please select a work type.');
+        showAlert('addServiceError', 'Please enter a work type.');
         toggleButtonLoading(button, false);
         return;
       }
@@ -810,42 +835,45 @@
       }
 
       try {
-        // Add service
-        await addDoc(collection(db, `users/${currentUser.uid}/services`), {
+        // Prepare service data
+        const serviceData = {
           truckId,
           workType,
           mechanic,
           cost,
-          partsUsed,
           createdAt: serverTimestamp(),
           createdBy: currentUser.uid
-        });
+        };
+        if (partId) {
+          serviceData.partUsed = partId;
+        }
 
-        // Update parts inventory
-        for (const partId of partsUsed) {
-          if (partId) {
-            const partRef = doc(db, `users/${currentUser.uid}/parts`, partId);
-            const partDoc = await getDoc(partRef);
-            if (partDoc.exists()) {
-              const currentQuantity = partDoc.data().quantity;
-              if (currentQuantity > 0) {
-                await updateDoc(partRef, { quantity: currentQuantity - 1 });
-              } else {
-                showAlert('addServiceError', `Part ${partDoc.data().partId} is out of stock.`, true);
-              }
+        // Add service
+        await addDoc(collection(db, `users/${currentUser.uid}/services`), serviceData);
+
+        // Update inventory if a part was selected
+        if (partId) {
+          const partRef = doc(db, `users/${currentUser.uid}/parts`, partId);
+          const partDoc = await getDoc(partRef);
+          if (partDoc.exists()) {
+            const currentQuantity = partDoc.data().quantity;
+            if (currentQuantity > 0) {
+              await updateDoc(partRef, { quantity: currentQuantity - 1 });
             } else {
-              showAlert('addServiceError', `Part with ID ${partId} not found.`, true);
+              showAlert('addServiceError', `Part ${partDoc.data().partId} is out of stock. Service added without part update.`, true);
             }
+          } else {
+            showAlert('addServiceError', `Part not found. Service added without part update.`, true);
           }
         }
 
         form.reset();
-        form.classList.remove('was-validated');
-        bootstrap.Modal.getInstance(document.getElementById('addServiceModal')).hide();
+        document.querySelector('#addServiceModal').classList.add('hidden');
         showAlert('serviceError', 'Service added successfully!', true);
         loadServices();
         loadParts();
       } catch (error) {
+        console.error('Error adding service:', error);
         showAlert('addServiceError', 'Failed to add service: ' + error.message);
       } finally {
         toggleButtonLoading(button, false);
@@ -855,7 +883,7 @@
     window.viewServiceHistory = async (truckId) => {
       try {
         const historyTableBody = document.getElementById('serviceHistoryTableBody');
-        historyTableBody.innerHTML = '';
+        historyTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">Loading history...</td></tr>';
         const q = query(
           collection(db, `users/${currentUser.uid}/services`),
           where('truckId', '==', truckId),
@@ -863,32 +891,30 @@
         );
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) {
-          historyTableBody.innerHTML = '<tr><td colspan="5" class="text-center">No service history found.</td></tr>';
+          historyTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No service history found.</td></tr>';
         } else {
+          historyTableBody.innerHTML = '';
           for (const doc of querySnapshot.docs) {
             const service = doc.data();
-            const parts = service.partsUsed && service.partsUsed.length > 0
-              ? await Promise.all(service.partsUsed.map(async (partId) => {
-                  const partRef = doc(db, `users/${currentUser.uid}/parts`, partId);
-                  const partDoc = await getDoc(partRef);
-                  return partDoc.exists() ? partDoc.data().name : 'Unknown';
-                }))
-              : ['None'];
+            const partName = service.partUsed
+              ? (await getDoc(doc(db, `users/${currentUser.uid}/parts`, service.partUsed))).data()?.name || 'Unknown'
+              : 'None';
             const createdAt = service.createdAt instanceof Timestamp ? service.createdAt.toDate() : new Date();
             const row = `
-              <tr>
-                <td>${service.workType}</td>
-                <td>${service.mechanic}</td>
-                <td>$${service.cost.toFixed(2)}</td>
-                <td>${createdAt.toLocaleDateString()}</td>
-                <td>${parts.join(', ')}</td>
+              <tr class="hover:bg-gray-100 transition-colors">
+                <td class="p-4">${service.workType}</td>
+                <td class="p-4">${service.mechanic}</td>
+                <td class="p-4">$${service.cost.toFixed(2)}</td>
+                <td class="p-4">${createdAt.toLocaleDateString()}</td>
+                <td class="p-4">${partName}</td>
               </tr>
             `;
             historyTableBody.insertAdjacentHTML('beforeend', row);
           }
         }
-        new bootstrap.Modal(document.getElementById('serviceHistoryModal')).show();
+        document.getElementById('serviceHistoryModal').classList.remove('hidden');
       } catch (error) {
+        console.error('Error loading service history:', error);
         showAlert('serviceHistoryError', 'Failed to load service history: ' + error.message);
       }
     };
@@ -898,23 +924,24 @@
       if (!currentUser) return;
       try {
         const partTableBody = document.getElementById('partTableBody');
-        partTableBody.innerHTML = '';
+        partTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">Loading parts...</td></tr>';
         const q = query(collection(db, `users/${currentUser.uid}/parts`), orderBy('partId'));
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) {
-          partTableBody.innerHTML = '<tr><td colspan="5" class="text-center">No parts found. Add a part to get started!</td></tr>';
+          partTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">No parts found. Add a part to get started!</td></tr>';
         } else {
+          partTableBody.innerHTML = '';
           querySnapshot.forEach((doc) => {
             const part = doc.data();
             const isLowStock = part.quantity < 5;
             const row = `
-              <tr class="${isLowStock ? 'low-stock' : ''}">
-                <td>${part.partId}</td>
-                <td>${part.name}</td>
-                <td>${part.quantity}${isLowStock ? ' (Low Stock)' : ''}</td>
-                <td>$${part.price.toFixed(2)}</td>
-                <td>
-                  <button class="btn btn-sm btn-primary" onclick="openEditPartModal('${doc.id}', '${part.partId}', '${part.name}', '${part.quantity}', '${part.price}')">Edit</button>
+              <tr class="${isLowStock ? 'bg-red-100' : 'hover:bg-gray-100'} transition-colors">
+                <td class="p-4">${part.partId}</td>
+                <td class="p-4">${part.name}</td>
+                <td class="p-4">${part.quantity}${isLowStock ? ' <span class="text-red-500">(Low Stock)</span>' : ''}</td>
+                <td class="p-4">$${part.price.toFixed(2)}</td>
+                <td class="p-4">
+                  <button class="btn bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600" onclick="openEditPartModal('${doc.id}', '${part.partId}', '${part.name}', '${part.quantity}', '${part.price}')"><i class="fa-solid fa-edit"></i> Edit</button>
                 </td>
               </tr>
             `;
@@ -922,6 +949,7 @@
           });
         }
       } catch (error) {
+        console.error('Error loading parts:', error);
         showAlert('partError', 'Failed to load parts: ' + error.message);
       }
     };
@@ -951,11 +979,11 @@
           createdBy: currentUser.uid
         });
         form.reset();
-        form.classList.remove('was-validated');
-        bootstrap.Modal.getInstance(document.getElementById('addPartModal')).hide();
+        document.querySelector('#addPartModal').classList.add('hidden');
         showAlert('partError', 'Part added successfully!', true);
         loadParts();
       } catch (error) {
+        console.error('Error adding part:', error);
         showAlert('addPartError', 'Failed to add part: ' + error.message);
       } finally {
         toggleButtonLoading(button, false);
@@ -968,7 +996,7 @@
       document.getElementById('editPartName').value = name;
       document.getElementById('editPartQuantity').value = quantity;
       document.getElementById('editPartPrice').value = price;
-      new bootstrap.Modal(document.getElementById('editPartModal')).show();
+      document.getElementById('editPartModal').classList.remove('hidden');
     };
 
     document.getElementById('editPartForm').addEventListener('submit', async (e) => {
@@ -997,11 +1025,11 @@
           createdBy: currentUser.uid
         });
         form.reset();
-        form.classList.remove('was-validated');
-        bootstrap.Modal.getInstance(document.getElementById('editPartModal')).hide();
+        document.querySelector('#editPartModal').classList.add('hidden');
         showAlert('partError', 'Part updated successfully!', true);
         loadParts();
       } catch (error) {
+        console.error('Error updating part:', error);
         showAlert('editPartError', 'Failed to update part: ' + error.message);
       } finally {
         toggleButtonLoading(button, false);
@@ -1013,11 +1041,10 @@
       const filter = document.getElementById('reportFilter').value;
       const reportTableHead = document.getElementById('reportTableHead');
       const reportTableBody = document.getElementById('reportTableBody');
-      reportTableBody.innerHTML = '';
+      reportTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-4">Loading report...</td></tr>';
       reportTableHead.innerHTML = '';
 
       try {
-        // Pre-fetch trucks to avoid repeated doc() calls
         const trucksMap = {};
         const trucksQ = query(collection(db, `users/${currentUser.uid}/trucks`));
         const trucksSnapshot = await getDocs(trucksQ);
@@ -1028,11 +1055,11 @@
         if (filter === 'daily' || filter === 'monthly') {
           reportTableHead.innerHTML = `
             <tr>
-              <th>Truck ID</th>
-              <th>Work Type</th>
-              <th>Mechanic</th>
-              <th>Cost</th>
-              <th>Date</th>
+              <th class="p-4">Truck ID</th>
+              <th class="p-4">Work Type</th>
+              <th class="p-4">Mechanic</th>
+              <th class="p-4">Cost</th>
+              <th class="p-4">Date</th>
             </tr>
           `;
           const today = new Date();
@@ -1051,19 +1078,20 @@
           );
           const querySnapshot = await getDocs(q);
           if (querySnapshot.empty) {
-            reportTableBody.innerHTML = `<tr><td colspan="5" class="text-center">No ${filter} services found.</td></tr>`;
+            reportTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4">No ${filter} services found.</td></tr>`;
           } else {
+            reportTableBody.innerHTML = '';
             for (const serviceDoc of querySnapshot.docs) {
               const service = serviceDoc.data();
               const truckId = trucksMap[service.truckId] || 'Unknown';
               const createdAt = service.createdAt instanceof Timestamp ? service.createdAt.toDate() : new Date();
               const row = `
-                <tr>
-                  <td>${truckId}</td>
-                  <td>${service.workType}</td>
-                  <td>${service.mechanic}</td>
-                  <td>$${service.cost.toFixed(2)}</td>
-                  <td>${createdAt.toLocaleDateString()}</td>
+                <tr class="hover:bg-gray-100 transition-colors">
+                  <td class="p-4">${truckId}</td>
+                  <td class="p-4">${service.workType}</td>
+                  <td class="p-4">${service.mechanic}</td>
+                  <td class="p-4">$${service.cost.toFixed(2)}</td>
+                  <td class="p-4">${createdAt.toLocaleDateString()}</td>
                 </tr>
               `;
               reportTableBody.insertAdjacentHTML('beforeend', row);
@@ -1072,10 +1100,10 @@
         } else if (filter === 'inventory') {
           reportTableHead.innerHTML = `
             <tr>
-              <th>Part ID</th>
-              <th>Name</th>
-              <th>Quantity Used</th>
-              <th>Services</th>
+              <th class="p-4">Part ID</th>
+              <th class="p-4">Name</th>
+              <th class="p-4">Quantity Used</th>
+              <th class="p-4">Services</th>
             </tr>
           `;
           const partsMap = {};
@@ -1090,34 +1118,32 @@
           const partsUsage = {};
           for (const serviceDoc of servicesSnapshot.docs) {
             const service = serviceDoc.data();
-            if (service.partsUsed && service.partsUsed.length > 0) {
-              for (const partId of service.partsUsed) {
-                if (!partsUsage[partId]) {
-                  partsUsage[partId] = {
-                    partId: partsMap[partId]?.partId || 'Unknown',
-                    name: partsMap[partId]?.name || 'Unknown',
-                    count: 0,
-                    services: []
-                  };
-                }
-                if (partsUsage[partId]) {
-                  partsUsage[partId].count += 1;
-                  partsUsage[partId].services.push(service.workType);
-                }
+            const partId = service.partUsed;
+            if (partId) {
+              if (!partsUsage[partId]) {
+                partsUsage[partId] = {
+                  partId: partsMap[partId]?.partId || 'Unknown',
+                  name: partsMap[partId]?.name || 'Unknown',
+                  count: 0,
+                  services: []
+                };
               }
+              partsUsage[partId].count += 1;
+              partsUsage[partId].services.push(service.workType);
             }
           }
           if (Object.keys(partsUsage).length === 0) {
-            reportTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No parts used in services.</td></tr>';
+            reportTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">No parts used in services.</td></tr>';
           } else {
+            reportTableBody.innerHTML = '';
             for (const partId in partsUsage) {
               const part = partsUsage[partId];
               const row = `
-                <tr>
-                  <td>${part.partId}</td>
-                  <td>${part.name}</td>
-                  <td>${part.count}</td>
-                  <td>${part.services.join(', ')}</td>
+                <tr class="hover:bg-gray-100 transition-colors">
+                  <td class="p-4">${part.partId}</td>
+                  <td class="p-4">${part.name}</td>
+                  <td class="p-4">${part.count}</td>
+                  <td class="p-4">${part.services.join(', ')}</td>
                 </tr>
               `;
               reportTableBody.insertAdjacentHTML('beforeend', row);
@@ -1126,9 +1152,9 @@
         } else if (filter === 'costs') {
           reportTableHead.innerHTML = `
             <tr>
-              <th>Truck ID</th>
-              <th>Total Cost</th>
-              <th>Service Count</th>
+              <th class="p-4">Truck ID</th>
+              <th class="p-4">Total Cost</th>
+              <th class="p-4">Service Count</th>
             </tr>
           `;
           const trucks = {};
@@ -1147,15 +1173,16 @@
             trucks[service.truckId].count += 1;
           }
           if (Object.keys(trucks).length === 0) {
-            reportTableBody.innerHTML = '<tr><td colspan="3" class="text-center">No costs recorded.</td></tr>';
+            reportTableBody.innerHTML = '<tr><td colspan="3" class="text-center p-4">No costs recorded.</td></tr>';
           } else {
+            reportTableBody.innerHTML = '';
             for (const truckId in trucks) {
               const truck = trucks[truckId];
               const row = `
-                <tr>
-                  <td>${truck.truckId}</td>
-                  <td>$${truck.totalCost.toFixed(2)}</td>
-                  <td>${truck.count}</td>
+                <tr class="hover:bg-gray-100 transition-colors">
+                  <td class="p-4">${truck.truckId}</td>
+                  <td class="p-4">$${truck.totalCost.toFixed(2)}</td>
+                  <td class="p-4">${truck.count}</td>
                 </tr>
               `;
               reportTableBody.insertAdjacentHTML('beforeend', row);
@@ -1163,19 +1190,28 @@
           }
         }
       } catch (error) {
-        console.error('Error in loadReport:', error);
-        showAlert('reportError', 'Failed to load report. Please try again later.');
+        console.error('Error loading report:', error);
+        showAlert('reportError', 'Failed to load report: ' + error.message);
       }
     };
 
     document.getElementById('reportFilter').addEventListener('change', loadReport);
 
-    // Initialize
-    document.getElementById('addServiceModal').addEventListener('shown.bs.modal', () => {
+    // Initialize Add Service Modal
+    const addServiceModal = document.getElementById('addServiceModal');
+    addServiceModal.addEventListener('show', () => {
       loadTrucksForService();
       loadPartsForService();
     });
+
+    // Trigger show event when opening modal
+    document.querySelector('[data-bs-target="#addServiceModal"]').addEventListener('click', () => {
+      addServiceModal.classList.remove('hidden');
+      addServiceModal.dispatchEvent(new Event('show'));
+    });
+
+    // Set initial active link
+    document.querySelector(`a[onclick="showSection('trucks')"]`).classList.add('bg-blue-600', 'text-white');
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
