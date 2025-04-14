@@ -236,35 +236,40 @@
   <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="addTruckModal" tabindex="-1" aria-labelledby="addTruckModalLabel" aria-hidden="true">
     <div class="modal-dialog max-w-md mx-auto mt-20">
       <div class="glass rounded-2xl p-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="modal-header flex justify-between items-center mb-4">
           <h5 class="text-xl font-semibold" id="addTruckModalLabel"><i class="fa-solid fa-truck-fast mr-2"></i> Add New Truck</h5>
           <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
             <i class="fa-solid fa-times"></i>
           </button>
         </div>
-        <form id="addTruckForm" novalidate class="space-y-4">
-          <div>
-            <label for="truckId" class="block text-sm font-medium">Truck ID</label>
-            <input type="text" id="truckId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., TRK001" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Truck ID.</div>
-          </div>
-          <div>
-            <label for="model" class="block text-sm font-medium">Model</label>
-            <input type="text" id="model" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Volvo FH16" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the truck model.</div>
-          </div>
-          <div>
-            <label for="year" class="block text-sm font-medium">Year</label>
-            <input type="number" id="year" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 2020" min="1900" max="2100" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid year.</div>
-          </div>
-          <div>
-            <label for="licensePlate" class="block text-sm font-medium">License Plate</label>
-            <input type="text" id="licensePlate" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., ABC123" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the license plate.</div>
-          </div>
-          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Truck</button>
-        </form>
+        <div class="modal-body">
+          <form id="addTruckForm" novalidate class="space-y-4">
+            <div>
+              <label for="truckId" class="block text-sm font-medium">Truck ID</label>
+              <input type="text" id="truckId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., TRK001" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Truck ID.</div>
+            </div>
+            <div>
+              <label for="model" class="block text-sm font-medium">Model</label>
+              <input type="text" id="model" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Volvo FH16" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the truck model.</div>
+            </div>
+            <div>
+              <label for="year" class="block text-sm font-medium">Year</label>
+              <input type="number" id="year" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 2020" min="1900" max="2100" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid year.</div>
+            </div>
+            <div>
+              <label for="licensePlate" class="block text-sm font-medium">License Plate</label>
+              <input type="text" id="licensePlate" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., ABC123" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the license plate.</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer flex justify-end space-x-2 mt-4">
+          <button type="button" class="btn bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors" data-bs-dismiss="modal">Back</button>
+          <button type="submit" form="addTruckForm" class="btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Truck</button>
+        </div>
         <div id="addTruckError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
@@ -313,43 +318,48 @@
   <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
     <div class="modal-dialog max-w-md mx-auto mt-20">
       <div class="glass rounded-2xl p-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="modal-header flex justify-between items-center mb-4">
           <h5 class="text-xl font-semibold" id="addServiceModalLabel"><i class="fa-solid fa-wrench mr-2"></i> Add New Service</h5>
           <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
             <i class="fa-solid fa-times"></i>
           </button>
         </div>
-        <form id="addServiceForm" novalidate class="space-y-4">
-          <div>
-            <label for="serviceTruckId" class="block text-sm font-medium">Truck</label>
-            <select id="serviceTruckId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required>
-              <option value="">Loading trucks...</option>
-            </select>
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please select a truck.</div>
-          </div>
-          <div>
-            <label for="workType" class="block text-sm font-medium">Work Type</label>
-            <input type="text" id="workType" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Engine Overhaul" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a work type.</div>
-          </div>
-          <div>
-            <label for="mechanic" class="block text-sm font-medium">Mechanic</label>
-            <input type="text" id="mechanic" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., John Doe" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the mechanic's name.</div>
-          </div>
-          <div>
-            <label for="serviceCost" class="block text-sm font-medium">Cost ($)</label>
-            <input type="number" id="serviceCost" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 500" min="0" step="0.01" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid cost (0 or greater).</div>
-          </div>
-          <div>
-            <label for="serviceParts" class="block text-sm font-medium">Part Used (Optional)</label>
-            <select id="serviceParts" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500">
-              <option value="">No part used</option>
-            </select>
-          </div>
-          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Service</button>
-        </form>
+        <div class="modal-body">
+          <form id="addServiceForm" novalidate class="space-y-4">
+            <div>
+              <label for="serviceTruckId" class="block text-sm font-medium">Truck</label>
+              <select id="serviceTruckId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" required>
+                <option value="">Loading trucks...</option>
+              </select>
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please select a truck.</div>
+            </div>
+            <div>
+              <label for="workType" class="block text-sm font-medium">Work Type</label>
+              <input type="text" id="workType" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Engine Overhaul" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a work type.</div>
+            </div>
+            <div>
+              <label for="mechanic" class="block text-sm font-medium">Mechanic</label>
+              <input type="text" id="mechanic" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., John Doe" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the mechanic's name.</div>
+            </div>
+            <div>
+              <label for="serviceCost" class="block text-sm font-medium">Cost ($)</label>
+              <input type="number" id="serviceCost" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 500" min="0" step="0.01" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid cost (0 or greater).</div>
+            </div>
+            <div>
+              <label for="serviceParts" class="block text-sm font-medium">Part Used (Optional)</label>
+              <select id="serviceParts" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500">
+                <option value="">No part used</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer flex justify-end space-x-2 mt-4">
+          <button type="button" class="btn bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors" data-bs-dismiss="modal">Back</button>
+          <button type="submit" form="addServiceForm" class="btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Service</button>
+        </div>
         <div id="addServiceError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
@@ -388,35 +398,40 @@
   <div class="modal fade fixed top-0 left-0 w-full h-full bg-black/50 z-50 hidden" id="addPartModal" tabindex="-1" aria-labelledby="addPartModalLabel" aria-hidden="true">
     <div class="modal-dialog max-w-md mx-auto mt-20">
       <div class="glass rounded-2xl p-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="modal-header flex justify-between items-center mb-4">
           <h5 class="text-xl font-semibold" id="addPartModalLabel"><i class="fa-solid fa-boxes-stacked mr-2"></i> Add New Part</h5>
           <button type="button" class="text-white hover:text-gray-300" data-bs-dismiss="modal" aria-label="Close">
             <i class="fa-solid fa-times"></i>
           </button>
         </div>
-        <form id="addPartForm" novalidate class="space-y-4">
-          <div>
-            <label for="partId" class="block text-sm font-medium">Part ID</label>
-            <input type="text" id="partId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., PART001" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Part ID.</div>
-          </div>
-          <div>
-            <label for="partName" class="block text-sm font-medium">Name</label>
-            <input type="text" id="partName" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Oil Filter" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the part name.</div>
-          </div>
-          <div>
-            <label for="partQuantity" class="block text-sm font-medium">Quantity</label>
-            <input type="number" id="partQuantity" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 10" min="0" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid quantity.</div>
-          </div>
-          <div>
-            <label for="partPrice" class="block text-sm font-medium">Price ($)</label>
-            <input type="number" id="partPrice" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 25.99" min="0" step="0.01" required />
-            <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid price.</div>
-          </div>
-          <button type="submit" class="btn bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Part</button>
-        </form>
+        <div class="modal-body">
+          <form id="addPartForm" novalidate class="space-y-4">
+            <div>
+              <label for="partId" class="block text-sm font-medium">Part ID</label>
+              <input type="text" id="partId" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., PART001" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a unique Part ID.</div>
+            </div>
+            <div>
+              <label for="partName" class="block text-sm font-medium">Name</label>
+              <input type="text" id="partName" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., Oil Filter" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter the part name.</div>
+            </div>
+            <div>
+              <label for="partQuantity" class="block text-sm font-medium">Quantity</label>
+              <input type="number" id="partQuantity" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 10" min="0" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid quantity.</div>
+            </div>
+            <div>
+              <label for="partPrice" class="block text-sm font-medium">Price ($)</label>
+              <input type="number" id="partPrice" class="w-full p-2 rounded-lg bg-white/90 text-gray-800 focus:ring-2 focus:ring-blue-500" placeholder="e.g., 25.99" min="0" step="0.01" required />
+              <div class="invalid-feedback text-red-400 text-sm mt-1 hidden">Please enter a valid price.</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer flex justify-end space-x-2 mt-4">
+          <button type="button" class="btn bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors" data-bs-dismiss="modal">Back</button>
+          <button type="submit" form="addPartForm" class="btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Add Part</button>
+        </div>
         <div id="addPartError" class="alert bg-red-500/80 text-white p-4 rounded-lg mt-4 hidden fade-in"></div>
       </div>
     </div>
@@ -536,8 +551,10 @@
     // Modal Handling
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
-      modal.querySelector('[data-bs-dismiss="modal"]').addEventListener('click', () => {
-        modal.classList.add('hidden');
+      modal.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          modal.classList.add('hidden');
+        });
       });
     });
     document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
